@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Ad Click Predictor — AI Powered</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#ffffff;--surface:#f8f9fc;--s2:#f0f2f7;--border:rgba(0,0,0,0.1);--bh:rgba(0,0,0,0.18);
+  --accent:#6c8fff;--adim:rgba(108,143,255,0.12);--aglow:rgba(108,143,255,0.3);
+  --text:#1a1a2e;--muted:#5a5870;--faint:#e0e0e8;--danger:#e05c5c;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(108,143,255,0.06),transparent 70%);}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;
+  border-bottom:1px solid var(--border);background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);position:sticky;top:0;z-index:50;}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--aglow);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{font-size:13px;font-weight:500;color:var(--muted);padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .25s;}
+.nav-link:hover{color:var(--text);background:var(--s2);}
+.nav-link.active{color:var(--accent);background:var(--adim);}
+
+/* HEADER */
+.header{text-align:center;padding:52px 24px 28px;animation:fadeDown .7s var(--ease) both;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px;}
+.eyebrow::before,.eyebrow::after{content:'';display:block;width:24px;height:1px;background:var(--accent);opacity:.5;}
+.header h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,3.4rem);font-weight:300;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px;}
+.header p{color:var(--muted);font-size:15px;max-width:380px;margin:0 auto;}
+
+/* FORM CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;max-width:760px;
+  margin:0 auto 60px;padding:36px;animation:slideUp .7s .1s var(--ease) both;box-shadow:0 40px 80px rgba(0,0,0,0.1);}
+
+/* SECTION LABEL */
+.slbl{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+  font-weight:600;color:var(--muted);margin:28px 0 14px;}
+.slbl:first-of-type{margin-top:0;}
+.slbl::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* AGE */
+input[type="number"]{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);
+  outline:none;transition:all .3s var(--ease);-moz-appearance:textfield;}
+input[type="number"]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--adim);}
+input[type="number"]::placeholder{color:var(--faint);}
+
+/* OPTIONS */
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:10px;}
+.option{background:var(--s2);border:1px solid var(--border);border-radius:14px;padding:16px 10px;
+  cursor:pointer;transition:all .25s var(--ease);text-align:center;user-select:none;position:relative;overflow:hidden;}
+.option::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,var(--adim),transparent);opacity:0;transition:opacity .25s;}
+.option:hover{border-color:var(--bh);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.4);}
+.option:hover::before{opacity:1;}
+.option.selected{border-color:var(--accent);background:var(--adim);transform:translateY(-2px);box-shadow:0 0 20px var(--aglow);}
+.option.selected::before{opacity:1;}
+.option.selected .chk{opacity:1;transform:scale(1);}
+.chk{position:absolute;top:7px;right:7px;width:16px;height:16px;background:var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:9px;opacity:0;transform:scale(.4);transition:all .25s var(--ease);}
+.opt-icon{font-size:26px;margin-bottom:7px;line-height:1;}
+.option p{font-size:11px;font-weight:500;color:var(--muted);margin:0;transition:color .2s;}
+.option.selected p,.option:hover p{color:var(--text);}
+
+/* SELECT */
+select{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:12px;
+  padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);
+  outline:none;cursor:pointer;transition:all .3s var(--ease);appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a6880' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 16px center;}
+select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--adim);}
+select option{background:#f0f2f7;}
+
+/* SUBMIT */
+.submit-wrap{margin-top:32px;display:flex;justify-content:center;}
+.btn-predict{display:inline-flex;align-items:center;gap:10px;padding:15px 44px;background:var(--accent);color:#fff;
+  border:none;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;
+  letter-spacing:.03em;cursor:pointer;transition:all .3s var(--ease);box-shadow:0 8px 28px var(--aglow);}
+.btn-predict:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(108,143,255,.55);}
+.btn-predict:active{transform:translateY(0);}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){.card{padding:24px 18px;margin:0 14px 40px;}.options{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/"><span class="nav-dot"></span>AdClick AI</a>
+  <div class="nav-links">
+    <a class="nav-link active" href="/">Predict</a>
+    <a class="nav-link" href="/analytics">Analytics</a>
+    <a class="nav-link" href="/history">History</a>
+  </div>
+</nav>
+
+<div class="header">
+  <div class="eyebrow">Cold-Start</div>
+  <h1>Ad Click Predictor</h1>
+  <p>Predict user ad engagement using machine learning</p>
+</div>
+
+<div class="card">
+  <form action="/predict" method="POST" onsubmit="return validateForm()">
+
+    <div class="slbl">🎂 Age</div>
+    <input type="number" name="age" placeholder="Enter age (e.g. 28)" min="1" max="100" required/>
+
+    <div class="slbl">👤 Gender</div>
+    <input type="hidden" name="gender" id="gender"/>
+    <div class="options">
+      <div class="option gender" onclick="pick('gender','Male',this)"><div class="chk">✓</div><div class="opt-icon">👨</div><p>Male</p></div>
+      <div class="option gender" onclick="pick('gender','Female',this)"><div class="chk">✓</div><div class="opt-icon">👩</div><p>Female</p></div>
+    </div>
+
+    <div class="slbl">📱 Device Type</div>
+    <input type="hidden" name="device_type" id="device_type"/>
+    <div class="options">
+      <div class="option device_type" onclick="pick('device_type','Mobile',this)"><div class="chk">✓</div><div class="opt-icon">📱</div><p>Mobile</p></div>
+      <div class="option device_type" onclick="pick('device_type','Desktop',this)"><div class="chk">✓</div><div class="opt-icon">💻</div><p>Desktop</p></div>
+    </div>
+
+    <div class="slbl">🏷️ Ad Category</div>
+    <input type="hidden" name="ad_category" id="ad_category"/>
+    <div class="options">
+      <div class="option ad_category" onclick="pick('ad_category','Shopping',this)"><div class="chk">✓</div><div class="opt-icon">🛍️</div><p>Shopping</p></div>
+      <div class="option ad_category" onclick="pick('ad_category','Education',this)"><div class="chk">✓</div><div class="opt-icon">🎓</div><p>Education</p></div>
+      <div class="option ad_category" onclick="pick('ad_category','Entertainment',this)"><div class="chk">✓</div><div class="opt-icon">🎬</div><p>Entertainment</p></div>
+      <div class="option ad_category" onclick="pick('ad_category','Technology',this)"><div class="chk">✓</div><div class="opt-icon">🤖</div><p>Technology</p></div>
+      <div class="option ad_category" onclick="pick('ad_category','Food',this)"><div class="chk">✓</div><div class="opt-icon">🍔</div><p>Food</p></div>
+    </div>
+
+    <div class="slbl">🕒 Time of Day</div>
+    <input type="hidden" name="time_of_day" id="time_of_day"/>
+    <div class="options">
+      <div class="option time_of_day" onclick="pick('time_of_day','Morning',this)"><div class="chk">✓</div><div class="opt-icon">🌅</div><p>Morning</p></div>
+      <div class="option time_of_day" onclick="pick('time_of_day','Afternoon',this)"><div class="chk">✓</div><div class="opt-icon">☀️</div><p>Afternoon</p></div>
+      <div class="option time_of_day" onclick="pick('time_of_day','Evening',this)"><div class="chk">✓</div><div class="opt-icon">🌆</div><p>Evening</p></div>
+      <div class="option time_of_day" onclick="pick('time_of_day','Night',this)"><div class="chk">✓</div><div class="opt-icon">🌙</div><p>Night</p></div>
+    </div>
+
+    <div class="slbl">📍 Ad Position</div>
+    <select name="ad_position">
+      <option value="Top">Top</option>
+      <option value="Side">Side</option>
+      <option value="Bottom">Bottom</option>
+    </select>
+
+    <div class="submit-wrap">
+      <button type="submit" class="btn-predict">✦ &nbsp;Predict Now</button>
+    </div>
+  </form>
+</div>
+
+<script>
+function pick(group,value,el){
+  document.getElementById(group).value=value;
+  document.querySelectorAll('.'+group).forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function validateForm(){
+  for(let f of ['gender','device_type','ad_category','time_of_day']){
+    if(!document.getElementById(f).value){
+      document.querySelectorAll('.'+f).forEach(el=>{
+        el.style.borderColor='#e05c5c';
+        setTimeout(()=>el.style.borderColor='',1500);
+      });
+      return false;
+    }
+  }
+  return true;
+}
+</script>
+</body>
+</html>

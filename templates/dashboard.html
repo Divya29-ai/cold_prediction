@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Prediction Result — Ad Click Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#ffffff;--surface:#f8f9fc;--s2:#f0f2f7;--s3:#e8eaf0;
+  --border:rgba(0,0,0,0.1);--bh:rgba(0,0,0,0.18);
+  --accent:#6c8fff;--adim:rgba(108,143,255,0.12);--aglow:rgba(108,143,255,0.3);
+  --text:#1a1a2e;--muted:#5a5870;--faint:#e0e0e8;
+  --green:#4caf7d;--gdim:rgba(76,175,125,0.12);--gglow:rgba(76,175,125,0.3);
+  --red:#e05c5c;--rdim:rgba(224,92,92,0.12);--rglow:rgba(224,92,92,0.3);
+  --ease:cubic-bezier(0.22,1,0.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(108,143,255,0.04),transparent 70%);}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;
+  border-bottom:1px solid var(--border);background:rgba(255,255,255,0.9);backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:50;}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:400;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--aglow);}
+.nav-links{display:flex;gap:4px;}
+.nav-link{font-size:13px;font-weight:500;color:var(--muted);padding:8px 16px;border-radius:100px;text-decoration:none;transition:all .25s;}
+.nav-link:hover{color:var(--text);background:var(--s2);}
+.nav-link.active{color:var(--accent);background:var(--adim);}
+
+/* PAGE */
+.page{max-width:960px;margin:0 auto;padding:40px 24px 60px;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;letter-spacing:-.02em;color:var(--text);margin-bottom:32px;animation:fadeDown .6s var(--ease) both;}
+
+/* RESULT HERO */
+.result-hero{
+  border-radius:20px;padding:40px;margin-bottom:20px;text-align:center;
+  border:1px solid;animation:slideUp .6s .05s var(--ease) both;
+  position:relative;overflow:hidden;
+}
+.result-hero.click{background:var(--gdim);border-color:rgba(76,175,125,0.3);}
+.result-hero.no-click{background:var(--rdim);border-color:rgba(224,92,92,0.3);}
+.result-hero::before{
+  content:'';position:absolute;width:300px;height:300px;border-radius:50%;
+  top:-100px;right:-80px;pointer-events:none;opacity:0.15;
+}
+.result-hero.click::before{background:var(--green);}
+.result-hero.no-click::before{background:var(--red);}
+.result-emoji{font-size:64px;margin-bottom:16px;line-height:1;display:block;}
+.result-verdict{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;margin-bottom:8px;}
+.result-hero.click .result-verdict{color:var(--green);}
+.result-hero.no-click .result-verdict{color:var(--red);}
+.result-sub{color:var(--muted);font-size:14px;}
+
+/* PROB RING */
+.prob-section{display:flex;justify-content:center;margin:20px 0 8px;}
+.prob-ring{position:relative;width:120px;height:120px;}
+.prob-ring svg{transform:rotate(-90deg);}
+.prob-ring circle{fill:none;stroke-width:9;stroke-linecap:round;}
+.track{stroke:var(--faint);}
+.fill-c{transition:stroke-dashoffset 1.2s var(--ease);}
+.prob-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;font-family:'Cormorant Garamond',serif;}
+.prob-pct{font-size:1.8rem;font-weight:300;line-height:1;}
+.prob-lbl{font-size:10px;font-family:'DM Sans',sans-serif;color:var(--muted);letter-spacing:.05em;}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr;}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;animation:slideUp .6s var(--ease) both;}
+.card:nth-child(1){animation-delay:.08s;}.card:nth-child(2){animation-delay:.13s;}.card:nth-child(3){animation-delay:.18s;}
+.card-lbl{font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--muted);margin-bottom:16px;}
+
+/* DETAIL ROWS */
+.detail-row{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 14px;background:var(--s2);border-radius:10px;border:1px solid var(--border);margin-bottom:8px;}
+.detail-row:last-child{margin-bottom:0;}
+.dk{font-size:12px;color:var(--muted);}
+.dv{font-size:13px;font-weight:600;color:var(--text);}
+
+/* INSIGHT CARD */
+.insight{background:var(--adim);border:1px solid rgba(108,143,255,0.2);border-radius:16px;padding:20px 24px;
+  display:flex;align-items:center;gap:16px;margin-bottom:20px;animation:slideUp .6s .22s var(--ease) both;}
+.insight-icon{font-size:28px;flex-shrink:0;}
+.insight-text{font-size:13px;color:var(--muted);line-height:1.6;}
+.insight-text strong{color:var(--accent);}
+
+/* GRAPH */
+.graph-img{width:100%;border-radius:10px;border:1px solid var(--border);}
+
+/* ACTIONS */
+.actions{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap;animation:fadeIn .5s .3s var(--ease) both;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:100px;
+  font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;
+  transition:all .3s var(--ease);text-decoration:none;border:none;letter-spacing:.02em;}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 6px 24px var(--aglow);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(108,143,255,.5);}
+.btn-ghost{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--text);border-color:var(--bh);}
+
+/* RECOMMENDATION CARDS */
+.rec-card{border-radius:16px;padding:24px;border:1px solid;animation:slideUp .6s var(--ease) both;}
+.rec-card.rec-green{background:rgba(76,175,125,0.08);border-color:rgba(76,175,125,0.25);}
+.rec-card.rec-purple{background:rgba(160,108,255,0.08);border-color:rgba(160,108,255,0.25);}
+.rec-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.rec-icon{font-size:28px;line-height:1;}
+.rec-title{font-size:14px;font-weight:600;color:var(--text);}
+.rec-sub{font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:2px;}
+.rec-value{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:400;margin-bottom:10px;letter-spacing:-.01em;}
+.rec-card.rec-green .rec-value{color:#4caf7d;}
+.rec-card.rec-purple .rec-value{color:#a06cff;}
+.rec-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+.rec-desc strong{color:var(--text);}
+.rec-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;
+  padding:6px 14px;border-radius:100px;}
+.rec-card.rec-green .rec-badge{background:rgba(76,175,125,0.15);color:#4caf7d;}
+.rec-card.rec-purple .rec-badge{background:rgba(160,108,255,0.15);color:#a06cff;}
+.rec-dot{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.green-dot{background:#4caf7d;box-shadow:0 0 8px rgba(76,175,125,.6);}
+.purple-dot{background:#a06cff;box-shadow:0 0 8px rgba(160,108,255,.6);}
+
+@keyframes fadeDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
+@keyframes slideUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/"><span class="nav-dot"></span>AdClick AI</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/">Predict</a>
+    <a class="nav-link active" href="#">Result</a>
+    <a class="nav-link" href="/analytics">Analytics</a>
+    <a class="nav-link" href="/history">History</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Prediction Result</h1>
+
+  {% set is_click = prediction == 1 %}
+
+  <!-- Result Hero -->
+  <div class="result-hero {{ 'click' if is_click else 'no-click' }}">
+    <span class="result-emoji">{{ '✅' if is_click else '❌' }}</span>
+    <div class="result-verdict">{{ 'Will Click the Ad' if is_click else 'Will Not Click the Ad' }}</div>
+    <div class="result-sub">Based on the provided user profile</div>
+    <div class="prob-section">
+      <div>
+        <div class="prob-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="50"/>
+            <circle class="fill-c" id="pf" cx="60" cy="60" r="50"
+              stroke="{{ '#4caf7d' if is_click else '#e05c5c' }}"
+              stroke-dasharray="314" stroke-dashoffset="314"/>
+          </svg>
+          <div class="prob-num">
+            <span class="prob-pct" style="color:{{ '#4caf7d' if is_click else '#e05c5c' }}">{{ probability }}%</span>
+            <span class="prob-lbl">PROBABILITY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ RECOMMENDATIONS SECTION -->
+  <div class="grid2" style="margin-bottom:20px;">
+
+    <!-- Best Ad Category -->
+    <div class="rec-card rec-green">
+      <div class="rec-header">
+        <span class="rec-icon">🎯</span>
+        <div>
+          <div class="rec-title">Best Ad Category</div>
+          <div class="rec-sub">Real-Time Recommendation</div>
+        </div>
+      </div>
+      <div class="rec-value">{{ best_category }}</div>
+      <div class="rec-desc">
+        <strong>{{ best_category }}</strong> ads perform best for this user profile
+        with a <strong>{{ best_cat_prob }}%</strong> predicted click probability.
+      </div>
+      <div class="rec-badge">
+        <span class="rec-dot green-dot"></span> {{ best_cat_prob }}% click chance
+      </div>
+    </div>
+
+    <!-- Best Time to Show -->
+    <div class="rec-card rec-purple">
+      <div class="rec-header">
+        <span class="rec-icon">⏰</span>
+        <div>
+          <div class="rec-title">Best Time to Show</div>
+          <div class="rec-sub">Time-Based Optimization</div>
+        </div>
+      </div>
+      <div class="rec-value">{{ best_time }}</div>
+      <div class="rec-desc">
+        Best time to show ads for this user is <strong>{{ best_time }}</strong>,
+        reaching <strong>{{ best_time_prob }}%</strong> predicted click probability.
+      </div>
+      <div class="rec-badge">
+        <span class="rec-dot purple-dot"></span> {{ best_time_prob }}% click chance
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Insight -->
+  <div class="insight">
+    <span class="insight-icon">🧠</span>
+    <div class="insight-text">
+      The most influential feature driving this prediction is <strong>{{ top_feature }}</strong>.
+      {% if is_click %}
+        This user profile has a <strong>{{ probability }}%</strong> chance of clicking — strong engagement signal.
+      {% else %}
+        With only <strong>{{ probability }}%</strong> click probability, consider targeting this segment differently.
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px;">
+    <!-- Profile -->
+    <div class="card">
+      <div class="card-lbl">👤 User Profile</div>
+      <div class="detail-row"><span class="dk">🎂 Age</span><span class="dv">{{ age }}</span></div>
+      <div class="detail-row"><span class="dk">👤 Gender</span><span class="dv">{{ gender }}</span></div>
+      <div class="detail-row"><span class="dk">📱 Device</span><span class="dv">{{ device }}</span></div>
+      <div class="detail-row"><span class="dk">📍 Position</span><span class="dv">{{ position }}</span></div>
+      <div class="detail-row"><span class="dk">🕒 Time</span><span class="dv">{{ time }}</span></div>
+      <div class="detail-row"><span class="dk">🏷️ Category</span><span class="dv">{{ category }}</span></div>
+    </div>
+
+    <!-- Model info -->
+    <div class="card">
+      <div class="card-lbl">🤖 Model Insight</div>
+      <div class="detail-row"><span class="dk">Model Type</span><span class="dv">Decision Tree</span></div>
+      <div class="detail-row"><span class="dk">Key Feature</span><span class="dv" style="color:var(--accent)">{{ top_feature }}</span></div>
+      <div class="detail-row"><span class="dk">Confidence</span>
+        <span class="dv" style="color:{{ '#4caf7d' if probability >= 70 else ('#e8a838' if probability >= 40 else '#e05c5c') }}">
+          {{ 'High' if probability >= 70 else ('Medium' if probability >= 40 else 'Low') }}
+        </span>
+      </div>
+      <div class="detail-row"><span class="dk">Prediction</span>
+        <span class="dv" style="color:{{ '#4caf7d' if is_click else '#e05c5c' }}">
+          {{ '✅ Click' if is_click else '❌ No Click' }}
+        </span>
+      </div>
+      <div class="detail-row"><span class="dk">Score</span><span class="dv">{{ probability }}%</span></div>
+    </div>
+  </div>
+
+  <!-- Graph -->
+  <div class="card" style="margin-bottom:0;animation-delay:.2s;">
+    <div class="card-lbl">📊 Live Analytics Snapshot</div>
+    <img class="graph-img" src="{{ url_for('static', filename='graph.png') }}?t={{ range(99999)|random }}" alt="Analytics"/>
+  </div>
+
+  <div class="actions">
+    <a href="/" class="btn btn-primary">✦ New Prediction</a>
+    <a href="/analytics" class="btn btn-ghost">📊 Full Analytics</a>
+    <a href="/history" class="btn btn-ghost">📋 History</a>
+  </div>
+</div>
+
+<script>
+const prob = {{ probability }};
+setTimeout(()=>{
+  document.getElementById('pf').style.strokeDashoffset = 314 - (prob/100)*314;
+},120);
+</script>
+</body>
+</html>

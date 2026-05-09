@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Click Analysis Graph</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{--bg:#ffffff;--surface:#f8f9fc;--border:rgba(0,0,0,0.1);--accent:#6c8fff;--text:#1a1a2e;--muted:#5a5870;--ease:cubic-bezier(0.22,1,0.36,1);}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;}
+  h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;margin-bottom:28px;letter-spacing:-0.02em;}
+  .graph-wrap{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;max-width:580px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.1);}
+  .graph-wrap img{width:100%;border-radius:10px;display:block;}
+  .actions{margin-top:24px;display:flex;gap:12px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:100px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.3s var(--ease);text-decoration:none;border:none;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(108,143,255,0.4);}
+</style>
+</head>
+<body>
+<h2>Click Analysis</h2>
+<div class="graph-wrap">
+  <img src="{{ url_for('static', filename='graph.png') }}" alt="Ad Click Analysis Graph"/>
+</div>
+<div class="actions">
+  <a href="/" class="btn btn-primary">← Back to Predictor</a>
+</div>
+</body>
+</html>
