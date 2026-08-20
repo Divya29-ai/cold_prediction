@@ -20,7 +20,7 @@ device_enc   = LabelEncoder(); df['device_enc']   = device_enc.fit_transform(df[
 position_enc = LabelEncoder(); df['position_enc'] = position_enc.fit_transform(df['ad_position'])
 time_enc     = LabelEncoder(); df['time_enc']     = time_enc.fit_transform(df['time_of_day'])
 category_enc = LabelEncoder(); df['category_enc'] = category_enc.fit_transform(df['ad_category'])
-
+# Feature selection 
 X = df[['age','gender_enc','device_enc','position_enc','time_enc','category_enc']]
 y = df['click']
 
